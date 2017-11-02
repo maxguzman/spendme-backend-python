@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>SpendMe</title>
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" href="/static/stylesheets/styles.css">
+	<link rel="stylesheet" href="/static/stylesheets/datepicker.css">
+</head>
+<body>
+
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">SpendMe</a>
+			</div>
+			<div id="navbar" class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					<li>
+						<a id="add-expense" data-toggle="modal" data-target="#insert-expense-modal" href="#">Agregar gasto</a>
+					</li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+						<a id="toggle-edit" href="#">Editar</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Modal Insert -->	
+	<div class="modal fade" id="insert-expense-modal" tabindex="-1" role="dialog" aria-labelledby="Insert Expense">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Agregar gasto</h4>
+				</div>
+				<!--  Add Expense Form -->	
+				<form class="form-horizontal" action="/insertexpense" method="POST">
+					<input type="text" name="entity_key" class="hidden">
+					<input type="text" name="expense_number" class="hidden">
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="expense-input" class="col-sm-2 control-label">Gasto</label>
+							<div class="col-sm-10">
+								<div class="input-group">
+									<div class="input-group-addon">$</div>
+									<input type="text" class="form-control" id="expense-input" name="expense" placeholder="0">
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="when-input" class="col-sm-2 control-label">Fecha</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="when-input" name="when" placeholder="Selecciona la fecha">
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="category-input" class="col-sm-2 control-label">Categoría</label>
+							<div class="col-sm-10">
+								<select class="form-control" id="category-input" name="category">
+								  	<option value="Compras">Compras</option>
+								  	<option value="Comida">Comida</option>
+								  	<option value="Bencina">Bencina</option>
+								  	<option value="Salida">Salida</option>
+								  	<option value="Auto">Auto</option>
+									<option value="Casa">Casa</option>
+									<option value="Mascota">Mascota</option>
+								</select>
+							</div>
+						</div>
+						<div class="form-group">
+							<label for="comment-input" class="col-sm-2 control-label">Comentario</label>
+							<div class="col-sm-10">
+								<textarea class="form-control" rows="5" id="comment-input" name="comment" placeholder="Comentario opcional..."></textarea>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+						<button type="submit" class="btn btn-primary">Agregar gasto</button>
+					</div>
+				</form>
+				<!--  End Add Expense Form -->	
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal Delete -->	
+	<div class="modal fade" id="delete-expense-modal" tabindex="-1" role="dialog" aria-labelledby="Delete Expense">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Eliminar Gasto</h4>
+				</div>
+				<!--  Delete Expense Form -->	
+				<form class="form-horizontal" action="/deleteexpense" method="POST">
+					<input type="text" name="entity_key" class="hidden">
+					<div class="modal-body">
+						<p>Estás seguro que quieres borrar este registro?</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+						<button type="submit" class="btn btn-danger">Borrar Gasto</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="table-wrapper">
+			<table class="table table-responsive">
+				<thead>
+					<tr>
+						<th class="static-row-expense">Gasto</th>
+						<th class="static-row-when">Cuando</th>
+						<th>Categoría</th>
+						<th>Comentario</th>
+						<th class="hidden edit-actions static-row-edit">Editar</th>
+					</tr>
+				</thead>
+				<tbody>
+				<!--  Query fetch from datastore -->
+				{% for exp in expenses_query %}
+					<tr>
+						<td>{{ "{0:.2f}".format(exp.expense) }}</td>
+						<td>{{ exp.when }}</td>
+						<td>{{ exp.category }}</td>
+						<td>{{ exp.comment }}</td>
+						<td class="hidden edit-actions">
+							<button  data-toggle="modal" data-target="#insert-expense-modal" type="button" class="btn edit-expense btn-success btn-xs">
+								<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+								<div class="hidden entity-key">{{ exp.key.urlsafe() }}</div>
+								<div class="hidden expense">{{ "{0:.2f}".format(exp.expense) }}</div>
+								<div class="hidden when">{{ exp.when }}</div>
+								<div class="hidden category">{{ exp.category }}</div>
+								<div class="hidden comment">{{ exp.comment }}</div>
+							</button>
+							<button data-toggle="modal" data-target="#delete-expense-modal" type="button" class="btn delete-expense btn-danger btn-xs">
+								<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+								<div class="hidden entity-key">{{ exp.key.urlsafe() }}</div>
+							</button>
+						</td>
+					</tr>
+				{% endfor %}
+				<!--  End Query fetch from datastore -->	
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script type="text/javascript" src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/static/js/bootstrap-datepicker.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="/static/js/autoNumeric-min.js" charset="UTF-8"></script>
+	<script type="text/javascript" src="/static/js/spendme.js"></script>
+</body>
+</html>

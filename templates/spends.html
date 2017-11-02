@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>SpendMe</title>
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/static/bootstrap/css/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="/static/stylesheets/styles.css">
+</head>
+<body>
+
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">SpendMe</a>
+			</div>
+			<div id="navbar" class="collapse navbar-collapse">
+				<ul class="nav navbar-nav">
+					<li>
+						<a id="add-expense" data-toggle="modal" data-target="#insert-expense-modal" href="#">Agregar Gasto</a>
+					</li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li>
+						<a id="toggle-edit" href="#">Editar</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Modal Insert -->	
+	<div class="modal fade" id="insert-expense-modal" tabindex="-1" role="dialog" aria-labelledby="Insert Expense">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Agregar Gasto</h4>
+				</div>
+				<!--  Add Expense Form -->	
+				<form class="form-horizontal" action="/insertexpense" method="POST">
+					<input type="text" name="entity_key" class="hidden">
+					<div class="modal-body">
+						<div class="form-group">
+							<label for="expense-input" class="col-sm-2 control-label">Gasto</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="expense-input" name="expense" placeholder="Expense"></div>
+						</div>
+						<div class="form-group">
+							<label for="when-input" class="col-sm-2 control-label">Cuando?</label>
+							<div class="col-sm-10">
+								<input type="text" class="form-control" id="when-input" name="when" placeholder="When">
+								<script type="text/javascript">
+						            $(function () {
+						                $('#when-input').datetimepicker();
+						            });
+						        </script>
+							</div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+						<button type="submit" class="btn btn-primary">Agregar gasto</button>
+					</div>
+				</form>
+				<!--  End Add Expense Form -->	
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal Delete -->	
+	<div class="modal fade" id="delete-expense-modal" tabindex="-1" role="dialog" aria-labelledby="Delete Expense">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+					<h4 class="modal-title">Eliminar Gasto</h4>
+				</div>
+				<!--  Delete Expense Form -->	
+				<form class="form-horizontal" action="/deleteexpense" method="POST">
+					<input type="text" name="entity_key" class="hidden">
+					<div class="modal-body">
+						<p>Estás seguro que quieres borrar este registro?</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+						<button type="submit" class="btn btn-danger">Borrar Gasto</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="table-wrapper">
+			<table class="table table-striped">
+				<thead>
+					<tr>
+						<th>Gestos</th>
+						<th>Cuando</th>
+						<th class="hidden edit-actions">Acciones</th>
+					</tr>
+				</thead>
+				<tbody>
+				<!--  Query fetch from datastore -->
+				{% for expense in expenses_query %}
+					<tr>
+						<td>{{ expense.expense }}</td>
+						<td>{{ expense.when }}</td>
+						<td class="hidden edit-actions">
+							<button  data-toggle="modal" data-target="#insert-expense-modal" type="button" class="btn edit-when-expense btn-success btn-xs">
+								<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>
+								<div class="hidden entity-key">{{ expense.key.urlsafe() }}</div>
+								<div class="hidden expense">{{ expense.expense }}</div>
+								<div class="hidden when">{{ expense.when }}</div>
+							</button>
+							<button data-toggle="modal" data-target="#delete-expense-modal" type="button" class="btn delete-expense btn-danger btn-xs">
+								<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+								<div class="hidden entity-key">{{ expense.key.urlsafe() }}</div>
+							</button>
+						</td>
+					</tr>
+				{% endfor %}
+				<!--  End Query fetch from datastore -->	
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+	<script src="/static/bootstrap/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/static/js/spendme.js"></script>
+</body>
+</html>
